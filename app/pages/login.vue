@@ -69,6 +69,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  layout: 'empty', // Используем пустой layout
+})
+
 const { ready, authenticated, error, login } = useAuth()
 
 watch(authenticated, (isAuth) => {
