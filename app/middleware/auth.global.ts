@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware((to) => {
   // Защищённые маршруты
-  const protectedRoutes = ['/me']
+  const protectedRoutes = ['/me', '/dictionaries']
   
   if (!protectedRoutes.includes(to.path)) return
 
