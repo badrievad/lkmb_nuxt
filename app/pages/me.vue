@@ -328,7 +328,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="task in tasks" :key="taskKey(task)" class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+              <tr 
+                v-for="task in tasks" 
+                :key="taskKey(task)" 
+                @click="navigateTo(`/tasks/${task.id}`)"
+                class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
                 <td class="py-3 pr-4 font-medium text-slate-900">{{ task.name }}</td>
                 <td class="py-3 pr-4 text-slate-700">{{ task.taskType?.name || '—' }}</td>
                 <td class="py-3 pr-4">
@@ -454,6 +459,7 @@ type TaskUser = {
 }
 
 type Task = {
+  id: number
   dateCreated: string
   dateEnd: string | null
   name: string
@@ -532,7 +538,7 @@ function formatDate(iso: string) {
 }
 
 function taskKey(t: Task) {
-  return `${t.name}__${t.dateCreated}__${t.dateEnd ?? ''}`
+  return `${t.id}__${t.name}__${t.dateCreated}`
 }
 
 function resetForm() {
@@ -623,6 +629,7 @@ async function reloadTasks() {
       query UserTasks($id: Int!) {
         getUser(id: $id) {
           tasks {
+            id
             dateCreated
             dateEnd
             name
