@@ -249,6 +249,19 @@
 
               <p class="mt-1 text-xs text-slate-500">Можно выбрать несколько пользователей (Ctrl/⌘ + клик).</p>
               <p v-if="usersError" class="mt-2 text-xs text-rose-700">{{ usersError }}</p>
+
+              <!-- Notification checkbox -->
+              <div class="mt-3 flex items-center gap-2">
+                <input
+                  v-model="form.notifyAssignees"
+                  type="checkbox"
+                  id="notify-assignees"
+                  class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-2 focus:ring-slate-200 transition-all"
+                />
+                <label for="notify-assignees" class="text-sm text-slate-700 cursor-pointer select-none">
+                  Отправить уведомления исполнителям
+                </label>
+              </div>
             </div>
           </div>
 
@@ -510,6 +523,7 @@ const form = reactive({
   taskTypeId: null as number | null,
   dateEnd: '',
   userIds: [] as number[],
+  notifyAssignees: false,
 })
 
 const userInitials = computed(() => {
@@ -548,6 +562,7 @@ function resetForm() {
   form.userIds = []
   form.taskStateId = null
   form.taskTypeId = null
+  form.notifyAssignees = false
   createError.value = null
 }
 
@@ -575,7 +590,6 @@ async function loadUsers() {
     )
 
     const allUsers = res.getUsers ?? []
-    // Filter users who belong to the selected org
     users.value = allUsers
       .filter(u => u.orgs.some(org => org.id === userOrgs.selectedOrg.value?.id))
       .map(u => ({ id: u.id, name: u.name }))
@@ -707,7 +721,12 @@ async function createTask() {
       },
     }
 
-    await graphqlRequest<any>(mutation, variables, token.value)
+    const customHeaders: Record<string, string> = {}
+    if (form.notifyAssignees) {
+      customHeaders['X-Notify'] = '1'
+    }
+
+    await graphqlRequest<any>(mutation, variables, token.value, customHeaders)
 
     showCreate.value = false
     resetForm()
@@ -749,7 +768,6 @@ async function loadAuditLogs() {
   }
 }
 
-// Watch for org changes
 watch(() => userOrgs.selectedOrg.value, (newOrg) => {
   if (newOrg && user.value?.id) {
     reloadTasks()
