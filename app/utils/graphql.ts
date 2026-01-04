@@ -4,6 +4,7 @@ export async function graphqlRequest<T>(
   query: string,
   variables?: Record<string, any>,
   token?: string | null,
+  customHeaders?: Record<string, string>, // ← ЭТА СТРОКА ДОЛЖНА БЫТЬ!
 ) {
   const config = useRuntimeConfig()
   const url = config.public.graphqlUrl
@@ -14,6 +15,7 @@ export async function graphqlRequest<T>(
     headers: {
       'content-type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(customHeaders || {}), // ← И ЭТА СТРОКА!
     },
     body: { query, variables },
   })
